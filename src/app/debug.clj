@@ -1,4 +1,4 @@
-(ns debug
+(ns app.debug
   (:require [clojure.zip :as zip]
             [clojure.xml :as c-xml]))
 
