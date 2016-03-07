@@ -1,8 +1,7 @@
 (ns app.schema
   (:require [clojure.java.jdbc :as j]
             [clojure.pprint :as pp]
-            [app.xml :as xml]
-            [app.db :as db]))
+            [app.xml :as xml]))
 
 (defn sql-column-type
   [k v]
@@ -53,18 +52,18 @@
   [xs]
   (dorun (->>
            xs
-           (filter #(not (db/table-exists? %)))
-           (group-by :type)
-           (map (comp row-to-string first second))
+           ;(filter #(not (db/table-exists? %)))
+           (partition-by :type)
+           (map (comp row-to-string first))
            (map pp/pprint))))
 
 (defn- print-schema-handler
   [xs]
   (dorun (->>
            xs
-           (filter #(not (db/table-exists? %)))
-           (group-by :type)
-           (pmap (comp prettify-schema row-to-schema first second))
+           ;(filter #(not (db/table-exists? %)))
+           (partition-by :type)
+           (map (comp prettify-schema row-to-schema first))
            (map println))))
 
 (defn print-gml-features
