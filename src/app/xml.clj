@@ -32,6 +32,7 @@
          (= k "alkupvm") (c/to-sql-date v)
          (= k "teksti") v
          (= k "nimi_suomi") v
+         (= k "nimi_ruotsi") v
          (some? v) (read-string v)
          :else nil)]))
 
