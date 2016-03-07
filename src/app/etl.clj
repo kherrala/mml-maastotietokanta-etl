@@ -35,10 +35,23 @@
            (mapcat #(group-by :type %))
            (map (partial store-features db)))))
 
-(defn store-gml-features
-  [gml-filename]
+(defmacro dopar [seq-expr & body]
+  (assert (= 2 (count seq-expr)) "single pair of forms in sequence expression")
+  (let [[k v] seq-expr]
+    `(apply await
+            (for [k# ~v]
+              (let [a# (agent k#)]
+                (send a# (fn [~k] ~@body))
+                a#)))))
+
+(defn store-gml-files
+  [files]
   (let [ds (db/create-datasource)
         db {:datasource ds}]
     (try
-      (xml/parse-xml-features gml-filename (partial store-xml-handler db))
+      (dopar
+        [f files]
+        (do
+          (println (str "Processing file " f))
+          (xml/parse-xml-features f (partial store-xml-handler db))))
       (finally (db/close-datasource ds)))))

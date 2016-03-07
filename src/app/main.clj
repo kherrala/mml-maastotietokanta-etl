@@ -1,26 +1,30 @@
 (ns app.main
   (:gen-class)
   (:require [cljts.io :refer [write-wkt-str]]
+            [clojure.java.io :as io]
             [app.etl :as etl]
             [app.schema :as schema]))
 
-(def gml-files
-  (map #(str "resources/" %)
-       ["M4211L_mtk.zip" "M4211R_mtk.zip" "M4212L_mtk.zip" "M4212R_mtk.zip" "M4213L_mtk.zip" "M4213R_mtk.zip"
-        "M4214L_mtk.zip" "M4214R_mtk.zip" "M4221L_mtk.zip" "M4221R_mtk.zip" "M4222L_mtk.zip" "M4222R_mtk.zip"
-        "M4223L_mtk.zip" "M4223R_mtk.zip" "M4224L_mtk.zip" "M4224R_mtk.zip" "M4231L_mtk.zip" "M4231R_mtk.zip"
-        "M4232L_mtk.zip" "M4232R_mtk.zip" "M4233L_mtk.zip" "M4233R_mtk.zip" "M4234L_mtk.zip" "M4234R_mtk.zip"
-        "M4241L_mtk.zip" "M4241R_mtk.zip" "M4242L_mtk.zip" "M4242R_mtk.zip" "M4243L_mtk.zip" "M4243R_mtk.zip"
-        "M4244L_mtk.zip" "M4244R_mtk.zip"]))
+(def gml-base-dir "W:\\maastotietokanta\\kaikki\\etrs89\\gml")
+(def gml-file-pattern #"[KLMNPQRSTUVWX][2-6][1-4][1-4][1-4][LR]_mtk.zip$")
 
-(def sample-gml-file "resources/M4211R_mtk.zip")
+(defn find-gml
+  [base-dir]
+  (filter #(and (.isFile %) (re-matches gml-file-pattern (.getName %)))
+          (file-seq (io/file base-dir))))
+
+(def sample-gml-file "resources/M4211L_mtk.zip")
 ;(def sample-gml-file "resources/M4211L-head.xml")
 
+(defn file-to-filename [^java.io.File f]
+  (.toString (.toAbsolutePath (.toPath f))))
+
 (defn parse-all []
-  (doseq [f gml-files] (etl/store-gml-features f)))
+  (etl/store-gml-files
+    (map file-to-filename (find-gml gml-base-dir))))
 
 (defn parse-sample-features []
-  (etl/store-gml-features sample-gml-file))
+  (etl/store-gml-files (vector sample-gml-file)))
 
 (defn print-sample-schema []
   (schema/print-gml-schema sample-gml-file))

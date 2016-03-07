@@ -12,10 +12,10 @@
    :minimum-idle 10
    :maximum-pool-size  10
    :adapter "postgresql"
-   :username "kherrala"
-   :password "kherrala"
-   :database-name "kherrala"
-   :server-name "192.168.1.2"
+   :username "maastotietokanta"
+   :password "maastotietokanta"
+   :database-name "maastotietokanta"
+   :server-name "127.0.0.1"
    :port-number 5432})
 
 (def maastotietokanta-tables
